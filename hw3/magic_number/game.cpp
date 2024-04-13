@@ -99,11 +99,11 @@ void game_play(config_game& config) {
             config.attemp.attempts_count++;
 
             if (current_value < random_value) {
-                std::cout << "less than " << current_value;
+                std::cout << "greater than " << current_value;
                 if (min_range < current_value) min_range = current_value;
             }
             else if (current_value > random_value) {
-                std::cout << "greater than " << current_value;
+                std::cout << "less than " << current_value;
                 if (max_range > current_value) max_range = current_value;
             }
             else {
