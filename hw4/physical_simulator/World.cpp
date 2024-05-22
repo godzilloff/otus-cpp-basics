@@ -38,7 +38,8 @@ World::World(const std::string& worldFilePath) {
 /// @brief Отображает состояние мира
 void World::show(Painter& painter) const {
     // Рисуем прямоугольник, отображающий границу мира
-    painter.draw(topLeft, bottomRight, Color(0.1, 0.7, 0.6));
+    //painter.draw(topLeft, bottomRight, Color(0.1, 0.7, 0.6));
+    painter.draw(topLeft, bottomRight, Color(1, 1, 1));
 
     // Вызываем отрисовку каждого шара
     for (const Ball& ball : balls) {
