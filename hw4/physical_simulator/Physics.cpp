@@ -42,44 +42,15 @@ void Physics::collideBalls(std::vector<Ball>& balls) const {
 
 void Physics::collideWithBox(std::vector<Ball>& balls) const {
     for (Ball& ball : balls) {
-        Point p = ball.getCenter();
+        if (!ball.getCollidable())
+            continue;
+
+        const Point p = ball.getCenter();
         const double r = ball.getRadius();
         // определяет, находится ли v в диапазоне (lo, hi) (не включая границы)
         auto isOutOfRange = [](double v, double lo, double hi) {
             return v < lo || v > hi;
         };
-        
-        // попытка вписать все шары в область
-        /*
-        if (p.x > 2499 || p.x < -2501) {
-            p = p; // временный код для удобства постановки бряки
-        }
-
-        if (p.y > 1999 || p.y < -1999) {
-            p = p; // временный код для удобства постановки бряки
-        }
-
-        if ((p.x + r) > (bottomRight.x+1) ) { 
-            p = {bottomRight.x - r, p.y};
-            ball.setCenter(p);
-        }
-
-        if ((p.x - r) < (topLeft.x-1)) {
-            p = {topLeft.x + r, p.y};
-            ball.setCenter(p);
-        }
-
-        if ((p.y - r) < (topLeft.y-1) ) {
-            p = {p.x, topLeft.y + r};
-            ball.setCenter(p);
-        }
-
-        if ((p.y + r) > (bottomRight.y+1) ) {
-            p = {p.x, bottomRight.y - r};
-            ball.setCenter(p);
-        }
-
-            //*/
 
         if (isOutOfRange(p.x, topLeft.x + r, bottomRight.x - r)) {
             Point vector = ball.getVelocity().vector();
@@ -103,24 +74,20 @@ void Physics::move(std::vector<Ball>& balls) const {
 
 void Physics::processCollision(Ball& a, Ball& b,
                                double distanceBetweenCenters2) const {
-    //if (a.getCollidable() && b.getCollidable())
-    //if (a.getCollidable() || b.getCollidable())
-    {
 
-        // нормированный вектор столкновения
-        const Point normal = (b.getCenter() - a.getCenter()) /
-                             std::sqrt(distanceBetweenCenters2);
+    // нормированный вектор столкновения
+    const Point normal = (b.getCenter() - a.getCenter()) /
+                            std::sqrt(distanceBetweenCenters2);
 
-        // получаем скорость в векторном виде
-        const Point aV = a.getVelocity().vector();
-        const Point bV = b.getVelocity().vector();
+    // получаем скорость в векторном виде
+    const Point aV = a.getVelocity().vector();
+    const Point bV = b.getVelocity().vector();
 
-        // коэффициент p учитывает скорость обоих мячей
-        const double p = 2 * (dot(aV, normal) - dot(bV, normal)) /
-                         (a.getMass() + b.getMass());
+    // коэффициент p учитывает скорость обоих мячей
+    const double p = 2 * (dot(aV, normal) - dot(bV, normal)) /
+                        (a.getMass() + b.getMass());
 
-        // задаем новые скорости мячей после столкновения
-        a.setVelocity(Velocity(aV - normal * p * a.getMass()));
-        b.setVelocity(Velocity(bV + normal * p * b.getMass()));
-    }
+    // задаем новые скорости мячей после столкновения
+    a.setVelocity(Velocity(aV - normal * p * a.getMass()));
+    b.setVelocity(Velocity(bV + normal * p * b.getMass()));
 }
