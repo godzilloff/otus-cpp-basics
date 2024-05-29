@@ -14,6 +14,14 @@ set_target_properties(container
 	CXX_STANDARD_REQUIRED ON)
 
 
+# enable pedantic compiler modes 
+if (MSVC)
+        target_compile_options(container PUBLIC /W4 /WX)
+else()
+        target_compile_options(container PUBLIC -Wall -Wextra -Werror -pedantic)
+endif()
+
+
 if (MSVC)
 
 # === hide VS projects: ALL_BUILD and ZERO_CHECK ===

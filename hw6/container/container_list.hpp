@@ -72,7 +72,7 @@ template <typename T> class ContainerList {
         }
     }
 
-    void insert(int index, const T& v) {
+    void insert(const size_t index, const T& v) {
         // Проверка индекса
         if (index < 0 || index > size_) {
             return;
