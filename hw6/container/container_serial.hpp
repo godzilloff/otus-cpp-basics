@@ -3,24 +3,15 @@
 template <typename T> class ContainerSerial {
   public:
     ContainerSerial() : data_(nullptr), size_(0), capacity_(0) {}
+    ~ContainerSerial() {
+        delete[] data_;
+    }
 
     void push_back(const T& v) {
-        if (size_ == capacity_) {
-            // Расширение массива
-            capacity_ = (capacity_ == 0) ? 2 : (capacity_ *= 2);
-            T* newData = new T[capacity_]; // новая область памяти
+        check_capacity();
 
-            for (int i = 0; i < size_; ++i) {
-                newData[i] = data_[i]; // копирование элементов
-            }
-            if (data_ != nullptr)
-                delete[] data_; // удаление старой области
-            data_ = newData; // сохранение новой в мембер
-        }
-        if (size_ < capacity_) {
-            data_[size_] = v; // добавление нового элемента
-            size_++; // обновление информации о размере
-        }
+        data_[size_] = v; // добавление нового элемента
+        size_++; // обновление информации о размере
     }
 
     bool insert(const size_t pos, const T& v) {
@@ -28,7 +19,10 @@ template <typename T> class ContainerSerial {
             // invalid position
             return false;
         }
-        // need to move all element after 'pos' to one position to the left
+
+        check_capacity();
+
+        // need to move all element after 'pos' to one position to the right
         for (size_t i = size_; i > pos; --i) {
             data_[i] = data_[i - 1];
         }
@@ -43,7 +37,7 @@ template <typename T> class ContainerSerial {
             return false;
         }
         // need to move all element after 'pos' to one position to the left
-        for (size_t i = (pos - 1); i < size_; ++i) {
+        for (size_t i = pos; i < size_; ++i) {
             data_[i] = data_[i + 1];
         }
         size_--;
@@ -62,6 +56,21 @@ template <typename T> class ContainerSerial {
     }
 
   private:
+    bool check_capacity() {
+        if (size_ == capacity_) {
+            // Расширение массива
+            capacity_ = std::max(size_t(2), capacity_ * 2);
+            T* newData = new T[capacity_]; // новая область памяти
+
+            for (int i = 0; i < size_; ++i) {
+                newData[i] = data_[i]; // копирование элементов
+            }
+            delete[] data_;  // удаление старой области
+            data_ = newData; // сохранение новой в мембер
+        }
+        return true;
+    }
+
     T* data_ = nullptr;
     size_t size_ = 0;
     size_t capacity_ = 0;

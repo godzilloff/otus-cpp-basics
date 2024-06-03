@@ -3,6 +3,10 @@
 template <typename T> class ContainerList {
   public:
     ContainerList() {}
+    ~ContainerList() {
+        for (int ii = 0; ii < size_;)
+            erase(0);
+    }
 
     void push_back(const T& v) {
         Node* new_node = new Node(
@@ -22,7 +26,7 @@ template <typename T> class ContainerList {
 
     T operator[](std::size_t index) const {
         // Проверка индекса
-        if (index < 0 || index >= size_) {
+        if (index >= size_) {
             return 0;
         }
 
@@ -38,14 +42,14 @@ template <typename T> class ContainerList {
 
     bool erase(const size_t index) {
         // Проверка индекса
-        if (index < 0 || index >= size_) {
+        if (index >= size_) {
             return false;
         }
 
         // Поиск позиции для удаления
         Node* current = nullptr;
         int i = 0;
-        for (current = first_; current != nullptr && i < (index - 1);
+        for (current = first_; current != nullptr && i < index;
              current = current->next) {
             i++;
         }
@@ -74,7 +78,7 @@ template <typename T> class ContainerList {
 
     void insert(const size_t index, const T& v) {
         // Проверка индекса
-        if (index < 0 || index > size_) {
+        if (index > size_) {
             return;
         }
 

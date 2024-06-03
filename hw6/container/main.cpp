@@ -19,9 +19,9 @@ void test_container_serial() {
     std::cout << "size " << int_container.size() << std::endl;
 
     // 5. удаление третьего (по счёту), пятого и седьмого элементов
+    int_container.erase(2);
     int_container.erase(3);
     int_container.erase(4);
-    int_container.erase(5);
 
     // 6. вывод содержимого контейнера на экран
     print_container(int_container);
@@ -66,9 +66,9 @@ void test_container_list() {
     std::cout << "size " << int_container.size() << std::endl;
 
     // 5. удаление третьего (по счёту), пятого и седьмого элементов
+    int_container.erase(2);
     int_container.erase(3);
     int_container.erase(4);
-    int_container.erase(5);
 
     // 6. вывод содержимого контейнера на экран
     print_container(int_container);
