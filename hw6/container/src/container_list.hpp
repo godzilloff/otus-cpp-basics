@@ -8,6 +8,13 @@ template <typename T> class ContainerList {
             erase(0);
     }
 
+    explicit ContainerList(const ContainerList& container) {
+        size_t sz = container.size();
+        for (size_t ii = 0; ii < sz; ii++) {
+            this->push_back(container[ii]);
+        }
+    }
+
     void push_back(const T& v) {
         Node* new_node = new Node(
             v); // создание нового узла и сохраняем пользовательские данные
@@ -22,6 +29,16 @@ template <typename T> class ContainerList {
 
         last_ = new_node; // обновляем указатель на последний
         size_++; // обновляем размер
+    }
+
+    void push_front(const T& v) {
+        insert(0, v);
+    }
+
+    T pop_back(){
+        T tmp_v = last_->data;
+        erase(size_ - 1);
+        return tmp_v;
     }
 
     T operator[](std::size_t index) const {
@@ -68,6 +85,7 @@ template <typename T> class ContainerList {
             }
 
             // Освобождение памяти
+            current->data.~T();
             delete current;
 
             // Обновление размера списка
@@ -107,7 +125,8 @@ template <typename T> class ContainerList {
                 newNode->next = current;
 
             if (index != 0)
-                current->prev->next = newNode;
+                if (current->prev != nullptr)
+                    current->prev->next = newNode;
             current->prev = newNode;
 
             // Обновление размера списка
@@ -115,8 +134,42 @@ template <typename T> class ContainerList {
         }
     }
 
+    bool empty() const {
+        return (size_ > 0) ? false : true;
+    }
+
     size_t size() const {
         return size_;
+    }
+
+    ContainerList& operator=(const ContainerList &other){
+        if (this == &other)
+            return* this;
+
+        size_t sz = other.size();
+        for (size_t ii=0; ii < sz; ii++){
+            this->push_back(other[ii]);
+        }
+        return *this;
+    }
+
+    bool operator==(const ContainerList& other) const {
+
+        if (other.size() != size_)
+            return false;
+
+        Node* current = first_;
+        int ii = 0;
+        for (current = first_; current != nullptr && ii < size_;
+                current = current->next) {
+
+            if (other[ii] != current->data) {
+                return false;
+            }
+            ii++;
+        }
+
+        return true;
     }
 
   private:

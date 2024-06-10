@@ -4,7 +4,15 @@ template <typename T> class ContainerSerial {
   public:
     ContainerSerial() : data_(nullptr), size_(0), capacity_(0) {}
     ~ContainerSerial() {
+        clear();
         delete[] data_;
+    }
+
+    explicit ContainerSerial(const ContainerSerial& container) {
+        size_t sz = container.size();
+        for (size_t ii=0; ii<sz; ii++){
+            this->push_back(container[ii]);
+        }
     }
 
     void push_back(const T& v) {
@@ -12,6 +20,16 @@ template <typename T> class ContainerSerial {
 
         data_[size_] = v; // добавление нового элемента
         size_++; // обновление информации о размере
+    }
+
+    void push_front(const T& v) {
+        insert(0, v);
+    }
+
+    T pop_back() {
+        //T tmp_v = data_[size_];
+        size_--;
+        return data_[size_];
     }
 
     bool insert(const size_t pos, const T& v) {
@@ -36,12 +54,26 @@ template <typename T> class ContainerSerial {
             // invalid position
             return false;
         }
+
+        data_[pos].~T(); // clear element
+
         // need to move all element after 'pos' to one position to the left
         for (size_t i = pos; i < size_; ++i) {
             data_[i] = data_[i + 1];
         }
         size_--;
         return true;
+    }
+
+    void clear(){
+        //for (auto& item : data_)
+        //    item.~T();
+        for (size_t ii=0; ii < size_; ii++)
+            data_[ii].~T();
+    }
+
+    bool empty() const {
+        return (size_ > 0) ? false : true;
     }
 
     size_t size() const {
@@ -53,6 +85,39 @@ template <typename T> class ContainerSerial {
             return 0; // invalid position
         else
             return data_[index];
+    }
+
+    ContainerSerial& operator=(const ContainerSerial& other) {
+        if (this == &other)
+            return *this;
+
+        if (size_ > 0)
+            delete data_;
+
+        size_ = other.size();
+        capacity_ = size_;
+        T* newData = new T[capacity_]; // новая область памяти
+
+        for (int i = 0; i < size_; ++i) {
+            newData[i] = other.data_[i]; // копирование элементов
+        }
+        data_ = newData; // сохранение новой в мембер
+
+        return *this;
+    }
+
+    bool operator==(const ContainerSerial& other) const {
+
+        if (other.size() != size_)
+            return false;
+
+        for (size_t ii = 0; ii < size_; ii++) {
+            if (other[ii] != data_[ii]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
   private:
