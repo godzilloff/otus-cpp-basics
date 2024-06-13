@@ -8,11 +8,24 @@ template <typename T> class ContainerSerial {
         delete[] data_;
     }
 
-    explicit ContainerSerial(const ContainerSerial& container) {
-        size_t sz = container.size();
-        for (size_t ii=0; ii<sz; ii++){
-            this->push_back(container[ii]);
+    explicit ContainerSerial(const ContainerSerial& other) {
+        if (this != &other) {
+            size_ = other.size_;
+            capacity_ = size_;
+            data_ = new T[capacity_];
+
+            for (size_t ii = 0; ii < size_; ii++)
+                data_[ii] = other.data_[ii];
         }
+    }
+
+    explicit ContainerSerial(ContainerSerial&& other) noexcept
+        : data_(std::move(other.data_)), size_(std::move(other.size_)),
+          capacity_(size_) {
+
+        other.data_ = nullptr;
+        other.size_ = 0;
+        other.capacity_ = 0;
     }
 
     void push_back(const T& v) {
@@ -27,7 +40,6 @@ template <typename T> class ContainerSerial {
     }
 
     T pop_back() {
-        //T tmp_v = data_[size_];
         size_--;
         return data_[size_];
     }
@@ -65,10 +77,8 @@ template <typename T> class ContainerSerial {
         return true;
     }
 
-    void clear(){
-        //for (auto& item : data_)
-        //    item.~T();
-        for (size_t ii=0; ii < size_; ii++)
+    void clear() {
+        for (size_t ii = 0; ii < size_; ii++)
             data_[ii].~T();
     }
 
@@ -88,20 +98,36 @@ template <typename T> class ContainerSerial {
     }
 
     ContainerSerial& operator=(const ContainerSerial& other) {
-        if (this == &other)
-            return *this;
+        if (this != &other) {
+            if (size_ > 0)
+                delete data_;
 
-        if (size_ > 0)
-            delete data_;
+            size_ = other.size();
+            capacity_ = size_;
+            T* newData = new T[capacity_]; // новая область памяти
 
-        size_ = other.size();
-        capacity_ = size_;
-        T* newData = new T[capacity_]; // новая область памяти
-
-        for (int i = 0; i < size_; ++i) {
-            newData[i] = other.data_[i]; // копирование элементов
+            for (int i = 0; i < size_; ++i) {
+                newData[i] = other.data_[i]; // копирование элементов
+            }
+            data_ = newData; // сохранение новой в мембер
         }
-        data_ = newData; // сохранение новой в мембер
+        return *this;
+    }
+
+    ContainerSerial& operator=(ContainerSerial&& other) noexcept {
+        if (this != &other) {
+            for (size_t ii = 0; ii < size_; ii++)
+                data_[ii].~T();
+            delete[] data_;
+
+            data_ = std::move(other.data_);
+            size_ = std::move(other.size_);
+            capacity_ = size_;
+
+            other.data_ = nullptr;
+            other.size_ = 0;
+            other.capacity_ = 0;
+        }
 
         return *this;
     }
@@ -127,9 +153,12 @@ template <typename T> class ContainerSerial {
             capacity_ = std::max(size_t(2), capacity_ * 2);
             T* newData = new T[capacity_]; // новая область памяти
 
-            for (int i = 0; i < size_; ++i) {
+            for (int i = 0; i < size_; ++i)
                 newData[i] = data_[i]; // копирование элементов
-            }
+
+            for (size_t ii = 0; ii < size_; ii++)
+                data_[ii].~T();
+
             delete[] data_;  // удаление старой области
             data_ = newData; // сохранение новой в мембер
         }
