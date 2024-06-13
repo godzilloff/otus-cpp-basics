@@ -1,8 +1,40 @@
 #include <iostream>
 
 #include <container_list.hpp>
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
+const size_t MEGA_CNT = 15000;
+
+struct ListFixture : public testing::Test {
+    const size_t cnt = MEGA_CNT;
+    ContainerList<int> lst;
+
+    // Per-test-suite set-up.
+    static void SetUpTestSuite() {
+        //std::cout << "SetUpTestSuite" << std::endl;
+    }
+
+    // Per-test-suite tear-down.
+    static void TearDownTestSuite() {
+        //std::cout << "TearDownTestSuite" << std::endl;
+    }
+
+    // Per-test set-up
+    void SetUp() override {
+        //std::cout << "SetUp" << std::endl;
+
+        // Create list with elementCount elements
+        for (size_t i = 0; i < MEGA_CNT; ++i) {
+            lst.push_back(static_cast<int>(i));
+        }
+    }
+
+    // You can define per-test tear-down logic as usual.
+    void TearDown() override {
+        //std::cout << "TearDown" << std::endl;
+        lst.clear();
+    }
+};
 
 TEST(List, Empty) {
     // Arrange
@@ -54,7 +86,7 @@ TEST(List, PushFront) {
     ASSERT_FALSE(lst.empty());
 
     ASSERT_EQ(lst, lst2);
-    
+
     for (size_t ii = 0; ii < count; ii++) {
         SCOPED_TRACE(ii); // write to the console in which iteration
         ASSERT_EQ(lst[ii], lst2[ii]);
@@ -109,8 +141,10 @@ TEST(List, PopBack) {
 
     // Act
     for (size_t i = 0; i < count; ++i) {
+        // std::cout <<
         lst.pop_back();
     }
+    // std::cout << std::endl;
 
     // Assert
     ASSERT_EQ(lst.size(), static_cast<size_t>(0));
@@ -210,44 +244,91 @@ TEST(List, CheckSize) {
     ASSERT_FALSE(lst.empty());
 }
 
-TEST(List, Copy) {
+TEST_F(ListFixture, CopyCreate) {
     // Arrange
-    const size_t count = 10;
-    ContainerList<int> lst;
-
-    for (size_t i = 0; i < count; ++i) {
-        lst.push_back(static_cast<int>(i));
-    }
+    // from fixture
 
     // Act
-    ContainerList<int> lst_for_cpy = ContainerList<int>(lst);
+    ContainerList<int> lst_for_cpy{lst};
 
     // Assert
     ASSERT_EQ(lst.size(), lst_for_cpy.size());
-    for (size_t ii = 0; ii < count; ii++) {
+    for (size_t ii = 0; ii < cnt; ii++) {
         SCOPED_TRACE(ii); // write to the console in which iteration the error
         ASSERT_EQ(lst[ii], lst_for_cpy[ii]);
     }
 }
 
-TEST(List, Copy2) {
+TEST_F(ListFixture, CopyOperator) {
     // Arrange
-    const size_t count = 10;
-    ContainerList<int> lst;
-    ContainerList<int> lst_for_cpy;
-
-    for (size_t i = 0; i < count; ++i) {
-        lst.push_back(static_cast<int>(i));
-    }
+    // from fixture
 
     // Act
+    ContainerList<int> lst_for_cpy;
     lst_for_cpy = lst;
 
     // Assert
     ASSERT_EQ(lst.size(), lst_for_cpy.size());
-    for (size_t ii = 0; ii < count; ii++) {
+    for (size_t ii = 0; ii < cnt; ii++) {
         SCOPED_TRACE(ii); // write to the console in which iteration the error
         ASSERT_EQ(lst[ii], lst_for_cpy[ii]);
     }
 }
 
+TEST_F(ListFixture, MoveCreate) {
+    // Arrange
+    // from fixture
+
+    // Act
+    ContainerList<int> lst_for_move{std::move(lst)};
+
+    // Assert
+    ASSERT_EQ(lst_for_move.size(), static_cast<size_t>(cnt));
+    ASSERT_TRUE(lst.empty());
+
+    for (size_t ii = 0; ii < cnt; ii++) {
+        SCOPED_TRACE(ii); // write to the console in which iteration the error
+        ASSERT_EQ(lst_for_move[ii], ii);
+    }
+}
+
+TEST_F(ListFixture, MoveOperator) {
+    // Arrange
+    // from fixture
+
+    // Act
+    ContainerList<int> lst_for_move;
+    lst_for_move = std::move(lst);
+
+    // Assert
+    ASSERT_EQ(lst_for_move.size(), static_cast<size_t>(cnt));
+    ASSERT_TRUE(lst.empty());
+
+    for (size_t ii = 0; ii < cnt; ii++) {
+        SCOPED_TRACE(ii); // write to the console in which iteration the error
+        ASSERT_EQ(lst_for_move[ii], ii);
+    }
+}
+
+TEST(List, IteratorBeginEnd) {
+    // Arrange
+    const size_t count = 10;
+    ContainerList<int> lst;
+
+    for (size_t i = 0; i < count; ++i) {
+        lst.push_back(static_cast<int>(i));
+    }
+
+    // Act
+
+    // Assert
+    // std::cout << "TEST iterator" << std::endl;
+    int ii = 0;
+    for (const auto& it : lst) {
+        // std::cout << it << ' ';
+        ASSERT_EQ(it, ii);
+        ii++;
+    }
+
+    // std::cout << std::endl;
+}

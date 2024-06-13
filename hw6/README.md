@@ -14,3 +14,5 @@
 - метод получения доступа по индексу ( **operator[]** )
 
 ![Пример](https://github.com/godzilloff/otus-cpp-basics/blob/main/hw6/img/screen.png?raw=true)
+
+![Применение googletest](https://github.com/godzilloff/otus-cpp-basics/blob/main/hw6/img/screen_gtest.png?raw=true)
